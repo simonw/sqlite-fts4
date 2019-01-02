@@ -4,6 +4,10 @@ Custom SQLite functions written in Python for ranking documents indexed using th
 
 SQLite FTS5 includes built-in ranking functions, but these are not available with FTS4.
 
+## Demo
+
+You can try out these SQL functions [using this interactive demo]%28https://datasette-sqlite-fts4.datasette.io/24ways-fts4-52e8a02?sql=select+title%2C+matchinfo%28articles_fts%2C+%22pcxnal%22%29%2C%0D%0Adecode_matchinfo%28matchinfo%28articles_fts%2C+%22pcxnal%22%29%29%2C%0D%0Arank_score%28matchinfo%28articles_fts%2C+%22pcx%22%29%29+as+score%2C%0D%0Ajson_object%28%22pre%22%2C+annotate_matchinfo%28matchinfo%28articles_fts%2C+%22pcxnal%22%29%2C+%22pcxnal%22%29%29%0D%0Afrom+articles_fts+where+articles_fts+match+%3Asearch%0D%0Aorder+by+score&search=jquery%29.
+
 ## Usage
 
 This module implements several custom SQLite3 functions. You can register them against an existing SQLite connection like so:
