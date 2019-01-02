@@ -26,7 +26,7 @@ def test_fixture_sets_up_database(conn):
     "search,expected",
     [("hello", [1, 1, 1, 1, 1, 2, 2, 2]), ("dog", [1, 1, 1, 2, 2, 2, 2, 2])],
 )
-def test_annotate_matchinfo(conn, search, expected):
+def test_decode_matchinfo(conn, search, expected):
     r = conn.execute(
         """
         select decode_matchinfo(matchinfo(search, 'pcxnal'))
@@ -46,5 +46,5 @@ def test_annotate_matchinfo(conn, search, expected):
         )
     ],
 )
-def test_decode_matchinfo(buf, expected):
+def test_underlying_decode_matchinfo(buf, expected):
     assert expected == decode_matchinfo(buf)
