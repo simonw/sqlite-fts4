@@ -48,3 +48,55 @@ def test_decode_matchinfo(conn, search, expected):
 )
 def test_underlying_decode_matchinfo(buf, expected):
     assert expected == decode_matchinfo(buf)
+
+
+def test_annotate_matchinfo(conn):
+    r = conn.execute("""
+        select annotate_matchinfo(matchinfo(search, 'pcxnal'), 'pcxnal')
+        from search where search match ?
+    """, ["dog"]).fetchone()[0]
+    expected = {
+        "p": {
+            "value": 1,
+            "title": "Number of matchable phrases in the query"
+        },
+        "c": {
+            "value": 1,
+            "title": "Number of user defined columns in the FTS table"
+        },
+        "x": {
+            "value": [
+            {
+                "column_index": 0,
+                "phrase_index": 0,
+                "hits_this_column_this_row": 1,
+                "hits_this_column_all_rows": 2,
+                "docs_with_hits": 2
+            }
+            ],
+            "title": "Details for each phrase/column combination"
+        },
+        "n": {
+            "value": 2,
+            "title": "Number of rows in the FTS4 table"
+        },
+        "a": {
+            "title": "Average number of tokens in the text values stored in each column",
+            "value": [
+            {
+                "column_index": 0,
+                "average_num_tokens": 2
+            }
+            ]
+        },
+        "l": {
+            "title": "Length of value stored in current row of the FTS4 table in tokens for each column",
+            "value": [
+            {
+                "column_index": 0,
+                "length_of_value": 2
+            }
+            ]
+        }
+    }
+    assert expected == json.loads(r)
