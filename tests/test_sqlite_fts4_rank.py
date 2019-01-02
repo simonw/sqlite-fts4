@@ -1,5 +1,5 @@
 import sqlite3
-from sqlite_fts4_rank import register_functions, parse_match_info
+from sqlite_fts4_rank import register_functions, decode_matchinfo
 import pytest
 import json
 
@@ -26,10 +26,10 @@ def test_fixture_sets_up_database(conn):
     "search,expected",
     [("hello", [1, 1, 1, 1, 1, 2, 2, 2]), ("dog", [1, 1, 1, 2, 2, 2, 2, 2])],
 )
-def test_annotate_match_info(conn, search, expected):
+def test_annotate_matchinfo(conn, search, expected):
     r = conn.execute(
         """
-        select annotate_match_info(matchinfo(search, 'pcxnal'))
+        select decode_matchinfo(matchinfo(search, 'pcxnal'))
         from search where search match ?
     """,
         [search],
@@ -46,5 +46,5 @@ def test_annotate_match_info(conn, search, expected):
         )
     ],
 )
-def test_parse_match_info(buf, expected):
-    assert expected == parse_match_info(buf)
+def test_decode_matchinfo(buf, expected):
+    assert expected == decode_matchinfo(buf)
