@@ -33,4 +33,3 @@ jobs:
           on:
             branch: master
             tags: true
-            repo: simonw/sqlite-fts4
