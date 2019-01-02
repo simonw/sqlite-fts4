@@ -21,6 +21,10 @@ jobs:
       python: 3.6
       script:
         - pip install -U pip wheel
+        - npm install -g now
+        - pip install https://github.com/simonw/datasette/archive/master.zip
+        - curl --silent -o 24ways-fts4.db https://24ways-fts4-db.now.sh/
+        - datasette publish now 24ways-fts4.db --alias=datasette-sqlite-fts4.datasette.io --name=datasette-sqlite-fts4 --install https://github.com/simonw/sqlite-fts4-rank/archive/$TRAVIS_TAG.zip --install=datasette-sqlite-fts4
       deploy:
         - provider: pypi
           user: simonw
