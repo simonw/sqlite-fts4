@@ -1,8 +1,8 @@
-# sqlite-fts4-rank
+# sqlite-fts4
 
 Custom SQLite functions written in Python for ranking documents indexed using the FTS4 extension.
 
-SQLite FTS5 includes built-in ranking functions, but these are not available with FTS4.
+SQLite FTS5 includes a built-in ranking mechanism, but this is not available with FTS4.
 
 ## Demo
 
@@ -13,14 +13,14 @@ You can try out these SQL functions [using this interactive demo](https://datase
 This module implements several custom SQLite3 functions. You can register them against an existing SQLite connection like so:
 
     import sqlite3
-    from sqlite_fts4_rank import register_functions
+    from sqlite_fts4 import register_functions
 
     conn = sqlite3.connect(":memory:")
     register_functions(conn)
 
 If you only want a subset of the functions registered you can do so like this:
 
-    from sqlite_fts4_rank import rank_score
+    from sqlite_fts4 import rank_score
 
     conn = sqlite3.connect(":memory:")
     conn.create_function("rank_score", 1, rank_score)

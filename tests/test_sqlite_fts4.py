@@ -1,5 +1,5 @@
 import sqlite3
-from sqlite_fts4_rank import register_functions, decode_matchinfo
+from sqlite_fts4 import register_functions, decode_matchinfo
 import pytest
 import json
 

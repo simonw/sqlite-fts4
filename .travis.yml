@@ -24,7 +24,7 @@ jobs:
         - npm install -g now
         - pip install https://github.com/simonw/datasette/archive/master.zip
         - curl --silent -o 24ways-fts4.db https://24ways-fts4-db.now.sh/
-        - datasette publish now 24ways-fts4.db --token=$NOW_TOKEN --alias=datasette-sqlite-fts4.datasette.io --name=datasette-sqlite-fts4 --install https://github.com/simonw/sqlite-fts4-rank/archive/$TRAVIS_TAG.zip --install=datasette-sqlite-fts4 --install=datasette-json-html
+        - datasette publish now 24ways-fts4.db --token=$NOW_TOKEN --alias=datasette-sqlite-fts4.datasette.io --name=datasette-sqlite-fts4 --install https://github.com/simonw/sqlite-fts4/archive/$TRAVIS_TAG.zip --install=datasette-sqlite-fts4 --install=datasette-json-html
       deploy:
         - provider: pypi
           user: simonw
@@ -33,4 +33,4 @@ jobs:
           on:
             branch: master
             tags: true
-            repo: simonw/sqlite-fts4-rank
+            repo: simonw/sqlite-fts4
