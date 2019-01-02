@@ -1,5 +1,9 @@
 # sqlite-fts4
 
+[![PyPI](https://img.shields.io/pypi/v/sqlite-fts4.svg)](https://pypi.org/project/sqlite-fts4/)
+[![Travis CI](https://travis-ci.com/simonw/sqlite-fts4.svg?branch=master)](https://travis-ci.com/simonw/sqlite-fts4)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/simonw/sqlite-fts4/blob/master/LICENSE)
+
 Custom SQLite functions written in Python for ranking documents indexed using the FTS4 extension.
 
 SQLite FTS5 includes a built-in ranking mechanism, but this is not available with FTS4.
