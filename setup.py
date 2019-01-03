@@ -23,5 +23,5 @@ setup(
     version=VERSION,
     packages=["sqlite_fts4"],
     setup_requires=["pytest-runner"],
-    extras_require={"test": ["pytest==4.0.2"]},
+    extras_require={"test": ["pytest"]},
 )
