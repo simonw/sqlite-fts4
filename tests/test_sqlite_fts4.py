@@ -64,7 +64,7 @@ def test_underlying_decode_matchinfo(buf, expected):
 def test_annotate_matchinfo(conn):
     r = conn.execute(
         """
-        select annotate_matchinfo(matchinfo(search, 'pcxnalbsy'), 'pcxnalbsy')
+        select annotate_matchinfo(matchinfo(search, 'pcxnalsy'), 'pcxnalsy')
         from search where search match ?
     """,
         ["hello dog"],
@@ -110,18 +110,10 @@ def test_annotate_matchinfo(conn):
             "title": "Number of tokens in each column of the current row of the FTS4 table",
             "value": [{"column_index": 0, "num_tokens": 2, "idx": 10}],
         },
-        "b": {
-            "title": "Bitfield showing which phrases occur in which columns",
-            "value": [1, 1],
-            "decoded": {
-                "phrase_0": "10000000000000000000000000000000",
-                "phrase_1": "10000000000000000000000000000000",
-            },
-        },
         "s": {
             "title": "Length of longest subsequence of phrase matching each column",
             "value": [
-                {"column_index": 0, "length_phrase_subsequence_match": 2, "idx": 13}
+                {"column_index": 0, "length_phrase_subsequence_match": 2, "idx": 11}
             ],
         },
         "y": {
@@ -130,13 +122,13 @@ def test_annotate_matchinfo(conn):
                     "phrase_index": 0,
                     "column_index": 0,
                     "hits_for_phrase_in_col": 1,
-                    "idx": 14,
+                    "idx": 12,
                 },
                 {
                     "phrase_index": 1,
                     "column_index": 0,
                     "hits_for_phrase_in_col": 1,
-                    "idx": 15,
+                    "idx": 13,
                 },
             ],
             "title": "Usable phrase matches for each phrase/column combination",
