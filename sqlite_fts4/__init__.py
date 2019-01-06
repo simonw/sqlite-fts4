@@ -82,27 +82,11 @@ def _annotate_matchinfo(buf, format_string):
                 "title": "Details for each phrase/column combination",
             }
             # 3 * c_num_columns * p_num_phrases
-            print("Debbuging x")
-            # import pdb; pdb.set_trace()
             for phrase_index in range(p_num_phrases):
                 for column_index in range(c_num_columns):
-                    print(
-                        "BAD === phrase_index={}, column_index={} ===".format(
-                            phrase_index, column_index
-                        )
-                    )
                     hits_this_column_this_row, idx1 = _next()
                     hits_this_column_all_rows, idx2 = _next()
                     docs_with_hits, idx3 = _next()
-                    print("  ", [idx1, idx2, idx3])
-                    print(
-                        "    ",
-                        [
-                            hits_this_column_this_row,
-                            hits_this_column_all_rows,
-                            docs_with_hits,
-                        ],
-                    )
                     info.append(
                         {
                             "phrase_index": phrase_index,
@@ -121,11 +105,6 @@ def _annotate_matchinfo(buf, format_string):
                 "value": info,
                 "title": "Usable phrase matches for each phrase/column combination",
             }
-            print(
-                "Doing y - should be {} values - matchinfo is {}".format(
-                    c_num_columns * p_num_phrases, matchinfo
-                )
-            )
             for phrase_index in range(p_num_phrases):
                 for column_index in range(c_num_columns):
                     hits_for_phrase_in_col, idx = _next()
