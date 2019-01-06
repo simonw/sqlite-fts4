@@ -64,7 +64,7 @@ def test_underlying_decode_matchinfo(buf, expected):
 def test_annotate_matchinfo(conn):
     r = conn.execute(
         """
-        select annotate_matchinfo(matchinfo(search, 'pcxnalsy'), 'pcxnalsy')
+        select annotate_matchinfo(matchinfo(search, 'pcxnals'), 'pcxnals')
         from search where search match ?
     """,
         ["hello dog"],
@@ -116,23 +116,6 @@ def test_annotate_matchinfo(conn):
                 {"column_index": 0, "length_phrase_subsequence_match": 2, "idx": 11}
             ],
         },
-        "y": {
-            "value": [
-                {
-                    "phrase_index": 0,
-                    "column_index": 0,
-                    "hits_for_phrase_in_col": 1,
-                    "idx": 12,
-                },
-                {
-                    "phrase_index": 1,
-                    "column_index": 0,
-                    "hits_for_phrase_in_col": 1,
-                    "idx": 13,
-                },
-            ],
-            "title": "Usable phrase matches for each phrase/column combination",
-        },
     }
     assert expected == json.loads(r)
 
@@ -166,6 +149,49 @@ def test_annotate_matchinfo_b(conn):
                 "phrase_0": "10000000000000000000000000000000",
                 "phrase_1": "10000000000000000000000000000000",
             },
+        },
+    }
+    assert expected == json.loads(r)
+
+
+@pytest.mark.skipif(
+    sqlite_version < (3, 8, 10), reason="matchinfo 'y' was added in SQLite 3.8.10"
+)
+def test_annotate_matchinfo_y(conn):
+    r = conn.execute(
+        """
+        select annotate_matchinfo(matchinfo(search, 'pcy'), 'pcy')
+        from search where search match ?
+    """,
+        ["hello dog"],
+    ).fetchone()[0]
+    expected = {
+        "p": {
+            "value": 2,
+            "title": "Number of matchable phrases in the query",
+            "idx": 0,
+        },
+        "c": {
+            "value": 1,
+            "title": "Number of user defined columns in the FTS table",
+            "idx": 1,
+        },
+        "y": {
+            "value": [
+                {
+                    "phrase_index": 0,
+                    "column_index": 0,
+                    "hits_for_phrase_in_col": 1,
+                    "idx": 2,
+                },
+                {
+                    "phrase_index": 1,
+                    "column_index": 0,
+                    "hits_for_phrase_in_col": 1,
+                    "idx": 3,
+                },
+            ],
+            "title": "Usable phrase matches for each phrase/column combination",
         },
     }
     assert expected == json.loads(r)
