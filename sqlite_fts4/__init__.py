@@ -13,6 +13,7 @@ def register_functions(conn):
 
 
 def wrap_sqlite_function_in_error_logger(fn):
+    # Because SQLite swallows exceptions inside custom functions
     @wraps(fn)
     def wrapper(*args, **kwargs):
         try:
@@ -45,21 +46,31 @@ def annotate_matchinfo(buf, format_string):
 def _annotate_matchinfo(buf, format_string):
     # See https://www.sqlite.org/fts3.html#matchinfo for detailed specification
     matchinfo = list(decode_matchinfo(buf))
+    matchinfo_index = 0
     p_num_phrases = None
     c_num_columns = None
+
+    def _next():
+        nonlocal matchinfo_index
+        value = matchinfo[matchinfo_index]
+        matchinfo_index += 1
+        return value, matchinfo_index - 1
+
     results = {}
     for ch in format_string:
         if ch == "p":
-            p_num_phrases = matchinfo.pop(0)
+            p_num_phrases, idx = _next()
             results["p"] = {
                 "value": p_num_phrases,
                 "title": "Number of matchable phrases in the query",
+                "idx": idx,
             }
         elif ch == "c":
-            c_num_columns = matchinfo.pop(0)
+            c_num_columns, idx = _next()
             results["c"] = {
                 "value": c_num_columns,
                 "title": "Number of user defined columns in the FTS table",
+                "idx": idx,
             }
         elif ch == "x":
             # Depends on p and c
@@ -71,18 +82,35 @@ def _annotate_matchinfo(buf, format_string):
                 "title": "Details for each phrase/column combination",
             }
             # 3 * c_num_columns * p_num_phrases
-            for column_index in range(c_num_columns):
-                for phrase_index in range(p_num_phrases):
-                    hits_this_column_this_row = matchinfo.pop(0)
-                    hits_this_column_all_rows = matchinfo.pop(0)
-                    docs_with_hits = matchinfo.pop(0)
+            print("Debbuging x")
+            # import pdb; pdb.set_trace()
+            for phrase_index in range(p_num_phrases):
+                for column_index in range(c_num_columns):
+                    print(
+                        "BAD === phrase_index={}, column_index={} ===".format(
+                            phrase_index, column_index
+                        )
+                    )
+                    hits_this_column_this_row, idx1 = _next()
+                    hits_this_column_all_rows, idx2 = _next()
+                    docs_with_hits, idx3 = _next()
+                    print("  ", [idx1, idx2, idx3])
+                    print(
+                        "    ",
+                        [
+                            hits_this_column_this_row,
+                            hits_this_column_all_rows,
+                            docs_with_hits,
+                        ],
+                    )
                     info.append(
                         {
-                            "column_index": column_index,
                             "phrase_index": phrase_index,
+                            "column_index": column_index,
                             "hits_this_column_this_row": hits_this_column_this_row,
                             "hits_this_column_all_rows": hits_this_column_all_rows,
                             "docs_with_hits": docs_with_hits,
+                            "idxs": [idx1, idx2, idx3],
                         }
                     )
         elif ch == "y":
@@ -98,63 +126,90 @@ def _annotate_matchinfo(buf, format_string):
                     c_num_columns * p_num_phrases, matchinfo
                 )
             )
-            for column_index in range(c_num_columns):
-                for phrase_index in range(p_num_phrases):
-                    hits_for_phrase_in_col = matchinfo.pop(0)
+            for phrase_index in range(p_num_phrases):
+                for column_index in range(c_num_columns):
+                    hits_for_phrase_in_col, idx = _next()
                     info.append(
                         {
-                            "column_index": column_index,
                             "phrase_index": phrase_index,
+                            "column_index": column_index,
                             "hits_for_phrase_in_col": hits_for_phrase_in_col,
+                            "idx": idx,
                         }
                     )
         elif ch == "b":
             if None in (p_num_phrases, c_num_columns):
                 return _error("'b' must be preceded by 'p' and 'c'")
+            values = []
+            # We get back one integer for each 32 columns for each phrase
+            num_32_column_chunks = (c_num_columns + 31) // 32
+            decoded = {}
+            for phrase_index in range(p_num_phrases):
+                current_phrase_chunks = []
+                for _ in range(num_32_column_chunks):
+                    v = _next()[0]
+                    values.append(v)
+                    current_phrase_chunks.append(v)
+                decoded["phrase_{}".format(phrase_index)] = "".join(
+                    [
+                        "{:032b}".format(unsigned_integer)[::-1]
+                        for unsigned_integer in current_phrase_chunks
+                    ]
+                )
             results["b"] = {
-                "title": "More compact form of option 'y'",
-                "value": [
-                    matchinfo.pop(0)
-                    for i in range(((c_num_columns + 31) // 32) * p_num_phrases)
-                ],
+                "title": "Bitfield showing which phrases occur in which columns",
+                "value": values,
+                # Each integer is a 32bit unsigned integer, least significant
+                # bit is column 0, then column 1, then so on
+                "decoded": decoded,
             }
         elif ch == "n":
+            value, idx = _next()
             results["n"] = {
-                "value": matchinfo.pop(0),
+                "value": value,
                 "title": "Number of rows in the FTS4 table",
+                "idx": idx,
             }
         elif ch == "a":
             if c_num_columns is None:
                 return _error("'a' must be preceded by 'c'")
+            values = []
+            for i in range(c_num_columns):
+                value, idx = _next()
+                values.append(
+                    {"column_index": i, "average_num_tokens": value, "idx": idx}
+                )
             results["a"] = {
-                "title": "Average number of tokens in the text values stored in each column",
-                "value": [
-                    {"column_index": i, "average_num_tokens": matchinfo.pop(0)}
-                    for i in range(c_num_columns)
-                ],
+                "title": "Average number of tokens in each column across the whole table",
+                "value": values,
             }
         elif ch == "l":
             if c_num_columns is None:
                 return _error("'l' must be preceded by 'c'")
+            values = []
+            for i in range(c_num_columns):
+                value, idx = _next()
+                values.append({"column_index": i, "num_tokens": value, "idx": idx})
             results["l"] = {
-                "title": "Length of value stored in current row of the FTS4 table in tokens for each column",
-                "value": [
-                    {"column_index": i, "length_of_value": matchinfo.pop(0)}
-                    for i in range(c_num_columns)
-                ],
+                "title": "Number of tokens in each column of the current row of the FTS4 table",
+                "value": values,
             }
         elif ch == "s":
             if c_num_columns is None:
                 return _error("'s' must be preceded by 'c'")
-            results["s"] = {
-                "title": "Length of longest subsequence of phrase matching each column",
-                "value": [
+            values = []
+            for i in range(c_num_columns):
+                value, idx = _next()
+                values.append(
                     {
                         "column_index": i,
-                        "length_phrase_subsequence_match": matchinfo.pop(0),
+                        "length_phrase_subsequence_match": value,
+                        "idx": idx,
                     }
-                    for i in range(c_num_columns)
-                ],
+                )
+            results["s"] = {
+                "title": "Length of longest subsequence of phrase matching each column",
+                "value": values,
             }
     return results
 
