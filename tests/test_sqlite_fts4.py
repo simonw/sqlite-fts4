@@ -4,6 +4,17 @@ import pytest
 import json
 
 
+sqlite_version = tuple(
+    map(
+        int,
+        sqlite3.connect(":memory:")
+        .execute("select sqlite_version()")
+        .fetchone()[0]
+        .split("."),
+    )
+)
+
+
 @pytest.fixture
 def conn():
     conn = sqlite3.connect(":memory:")
@@ -129,6 +140,40 @@ def test_annotate_matchinfo(conn):
                 },
             ],
             "title": "Usable phrase matches for each phrase/column combination",
+        },
+    }
+    assert expected == json.loads(r)
+
+
+@pytest.mark.skipif(
+    sqlite_version < (3, 8, 11), reason="matchinfo 'b' was added in SQLite 3.8.11"
+)
+def test_annotate_matchinfo_b(conn):
+    r = conn.execute(
+        """
+        select annotate_matchinfo(matchinfo(search, 'pcb'), 'pcb')
+        from search where search match ?
+    """,
+        ["hello dog"],
+    ).fetchone()[0]
+    expected = {
+        "p": {
+            "value": 2,
+            "title": "Number of matchable phrases in the query",
+            "idx": 0,
+        },
+        "c": {
+            "value": 1,
+            "title": "Number of user defined columns in the FTS table",
+            "idx": 1,
+        },
+        "b": {
+            "title": "Bitfield showing which phrases occur in which columns",
+            "value": [1, 1],
+            "decoded": {
+                "phrase_0": "10000000000000000000000000000000",
+                "phrase_1": "10000000000000000000000000000000",
+            },
         },
     }
     assert expected == json.loads(r)
