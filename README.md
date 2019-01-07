@@ -10,7 +10,7 @@ SQLite FTS5 includes a built-in ranking mechanism, but this is not available wit
 
 ## Demo
 
-You can try out these SQL functions [using this interactive demo](https://datasette-sqlite-fts4.datasette.io/24ways-fts4-52e8a02?sql=select+title%2C+matchinfo%28articles_fts%2C+%22pcxnal%22%29%2C%0D%0Adecode_matchinfo%28matchinfo%28articles_fts%2C+%22pcxnal%22%29%29%2C%0D%0Arank_score%28matchinfo%28articles_fts%2C+%22pcx%22%29%29+as+score%2C%0D%0Ajson_object%28%22pre%22%2C+annotate_matchinfo%28matchinfo%28articles_fts%2C+%22pcxnal%22%29%2C+%22pcxnal%22%29%29%0D%0Afrom+articles_fts+where+articles_fts+match+%3Asearch%0D%0Aorder+by+score&search=jquery).
+You can try out these SQL functions [using this interactive demo](https://datasette-sqlite-fts4.datasette.io/24ways-fts4-52e8a02?sql=select+title%2C+matchinfo%28articles_fts%2C+%22pcxnalyb%22%29%2C%0D%0Adecode_matchinfo%28matchinfo%28articles_fts%2C+%22pcxnalyb%22%29%29%2C%0D%0Arank_score%28matchinfo%28articles_fts%2C+%22pcx%22%29%29+as+score%2C%0D%0Ajson_object%28%22pre%22%2C+annotate_matchinfo%28matchinfo%28articles_fts%2C+%22pcxnalyb%22%29%2C+%22pcxnalyb%22%29%29%0D%0Afrom+articles_fts+where+articles_fts+match+%3Asearch%0D%0Aorder+by+score&search=jquery).
 
 ## Usage
 
