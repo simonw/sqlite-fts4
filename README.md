@@ -6,7 +6,7 @@
 
 Custom SQLite functions written in Python for ranking documents indexed using the FTS4 extension.
 
-SQLite FTS5 includes a built-in ranking mechanism, but this is not available with FTS4.
+Read [Exploring search relevance algorithms with SQLite](https://simonwillison.net/2019/Jan/7/exploring-search-relevance-algorithms-sqlite/) for further details on this project.
 
 ## Demo
 
