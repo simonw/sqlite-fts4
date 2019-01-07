@@ -10,7 +10,7 @@ SQLite FTS5 includes a built-in ranking mechanism, but this is not available wit
 
 ## Demo
 
-You can try out these SQL functions [using this interactive demo](https://datasette-sqlite-fts4.datasette.io/24ways-fts4?sql=select+title%2C+author%2C+matchinfo(articles_fts%2C+"pcxnalyb")%2C%0D%0Adecode_matchinfo(matchinfo(articles_fts%2C+"pcxnalyb"))%2C%0D%0Arank_score(matchinfo(articles_fts%2C+"pcx"))+as+score%2C%0D%0Arank_bm25(matchinfo(articles_fts%2C+"pcnalx"))+as+bm25%2C%0D%0Ajson_object("pre"%2C+annotate_matchinfo(matchinfo(articles_fts%2C+"pcxnalyb")%2C+"pcxnalyb"))%0D%0Afrom+articles_fts+where+articles_fts+match+%3Asearch%0D%0Aorder+by+bm25&search=jquery+maps).
+You can try out these SQL functions [using this interactive demo](https://datasette-sqlite-fts4.datasette.io/24ways-fts4?sql=select%0D%0A++++json_object%28%0D%0A++++++++"label"%2C+articles.title%2C+"href"%2C+articles.url%0D%0A++++%29+as+article%2C%0D%0A++++articles.author%2C%0D%0A++++rank_score%28matchinfo%28articles_fts%2C+"pcx"%29%29+as+score%2C%0D%0A++++rank_bm25%28matchinfo%28articles_fts%2C+"pcnalx"%29%29+as+bm25%2C%0D%0A++++json_object%28%0D%0A++++++++"pre"%2C+annotate_matchinfo%28matchinfo%28articles_fts%2C+"pcxnalyb"%29%2C+"pcxnalyb"%29%0D%0A++++%29+as+annotated_matchinfo%2C%0D%0A++++matchinfo%28articles_fts%2C+"pcxnalyb"%29+as+matchinfo%2C%0D%0A++++decode_matchinfo%28matchinfo%28articles_fts%2C+"pcxnalyb"%29%29+as+decoded_matchinfo%0D%0Afrom%0D%0A++++articles_fts+join+articles+on+articles.rowid+%3D+articles_fts.rowid%0D%0Awhere%0D%0A++++articles_fts+match+%3Asearch%0D%0Aorder+by+bm25&search=jquery+maps).
 
 ## Usage
 
