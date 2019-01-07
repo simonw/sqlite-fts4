@@ -159,26 +159,14 @@ def test_annotate_matchinfo_b(conn):
         ["something ferret"],
     ).fetchone()[0]
     expected = {
-        "p": {
-            "value": 2,
-            "title": "Number of matchable phrases in the query",
-            "idx": 0,
-        },
-        "c": {
-            "value": 2,
-            "title": "Number of user defined columns in the FTS table",
-            "idx": 1,
-        },
-        "b": {
-            "title": "Bitfield showing which phrases occur in which columns",
-            "value": [1, 3],
-            "decoded": {
-                "phrase_0": "10000000000000000000000000000000",
-                "phrase_1": "11000000000000000000000000000000",
-            },
+        "title": "Bitfield showing which phrases occur in which columns",
+        "value": [1, 3],
+        "decoded": {
+            "phrase_0": "10000000000000000000000000000000",
+            "phrase_1": "11000000000000000000000000000000",
         },
     }
-    assert expected == json.loads(r)
+    assert expected == json.loads(r)["b"]
 
 
 @pytest.mark.skipif(
@@ -193,44 +181,32 @@ def test_annotate_matchinfo_y(conn):
         ["something ferret"],
     ).fetchone()[0]
     expected = {
-        "p": {
-            "value": 2,
-            "title": "Number of matchable phrases in the query",
-            "idx": 0,
-        },
-        "c": {
-            "value": 2,
-            "title": "Number of user defined columns in the FTS table",
-            "idx": 1,
-        },
-        "y": {
-            "value": [
-                {
-                    "phrase_index": 0,
-                    "column_index": 0,
-                    "hits_for_phrase_in_col": 1,
-                    "idx": 2,
-                },
-                {
-                    "phrase_index": 0,
-                    "column_index": 1,
-                    "hits_for_phrase_in_col": 0,
-                    "idx": 3,
-                },
-                {
-                    "phrase_index": 1,
-                    "column_index": 0,
-                    "hits_for_phrase_in_col": 1,
-                    "idx": 4,
-                },
-                {
-                    "phrase_index": 1,
-                    "column_index": 1,
-                    "hits_for_phrase_in_col": 2,
-                    "idx": 5,
-                },
-            ],
-            "title": "Usable phrase matches for each phrase/column combination",
-        },
+        "value": [
+            {
+                "phrase_index": 0,
+                "column_index": 0,
+                "hits_for_phrase_in_col": 1,
+                "idx": 2,
+            },
+            {
+                "phrase_index": 0,
+                "column_index": 1,
+                "hits_for_phrase_in_col": 0,
+                "idx": 3,
+            },
+            {
+                "phrase_index": 1,
+                "column_index": 0,
+                "hits_for_phrase_in_col": 1,
+                "idx": 4,
+            },
+            {
+                "phrase_index": 1,
+                "column_index": 1,
+                "hits_for_phrase_in_col": 2,
+                "idx": 5,
+            },
+        ],
+        "title": "Usable phrase matches for each phrase/column combination",
     }
-    assert expected == json.loads(r)
+    assert expected == json.loads(r)["y"]
