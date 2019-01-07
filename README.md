@@ -29,6 +29,10 @@ If you only want a subset of the functions registered you can do so like this:
     conn = sqlite3.connect(":memory:")
     conn.create_function("rank_score", 1, rank_score)
 
+if you want to use these functions with [Datasette](https://github.com/simonw/datasette) you can enable them by installing the [datasette-sqlite-fts4](https://github.com/simonw/datasette-sqlite-fts4) plugin:
+
+    pip install datasette-sqlite-fts4
+
 ## rank_score()
 
 This is an extremely simple ranking function, based on [an example](https://www.sqlite.org/fts3.html#appendix_a) in the SQLite documentation. It generates a score for each document using the sum of the score for each column. The score for each column is calculated as the number of search matches in that column divided by the number of search matches for every column in the index - a classic [TF-IDF](https://en.wikipedia.org/wiki/Tf%E2%80%93idf) calculation.
