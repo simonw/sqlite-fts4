@@ -10,7 +10,7 @@ SQLite FTS5 includes a built-in ranking mechanism, but this is not available wit
 
 ## Demo
 
-You can try out these SQL functions [using this interactive demo](https://datasette-sqlite-fts4.datasette.io/24ways-fts4-52e8a02?sql=select+title%2C+matchinfo%28articles_fts%2C+%22pcxnalyb%22%29%2C%0D%0Adecode_matchinfo%28matchinfo%28articles_fts%2C+%22pcxnalyb%22%29%29%2C%0D%0Arank_score%28matchinfo%28articles_fts%2C+%22pcx%22%29%29+as+score%2C%0D%0Ajson_object%28%22pre%22%2C+annotate_matchinfo%28matchinfo%28articles_fts%2C+%22pcxnalyb%22%29%2C+%22pcxnalyb%22%29%29%0D%0Afrom+articles_fts+where+articles_fts+match+%3Asearch%0D%0Aorder+by+score&search=jquery).
+You can try out these SQL functions [using this interactive demo](https://datasette-sqlite-fts4.datasette.io/24ways-fts4?sql=select+title%2C+author%2C+matchinfo(articles_fts%2C+"pcxnalyb")%2C%0D%0Adecode_matchinfo(matchinfo(articles_fts%2C+"pcxnalyb"))%2C%0D%0Arank_score(matchinfo(articles_fts%2C+"pcx"))+as+score%2C%0D%0Arank_bm25(matchinfo(articles_fts%2C+"pcnalx"))+as+bm25%2C%0D%0Ajson_object("pre"%2C+annotate_matchinfo(matchinfo(articles_fts%2C+"pcxnalyb")%2C+"pcxnalyb"))%0D%0Afrom+articles_fts+where+articles_fts+match+%3Asearch%0D%0Aorder+by+bm25&search=jquery+maps).
 
 ## Usage
 
@@ -38,6 +38,18 @@ You can use it in a query like this:
     select *, rank_score(matchinfo(docs, "pcx")) as score
     from docs where docs match "dog"
     order by score desc
+
+You *must* use the `"pcx"` matchinfo format string here, or you will get incorrect results.
+
+## rank_bm25()
+
+An implementation of the [Okapi BM25](https://en.wikipedia.org/wiki/Okapi_BM25) scoring algorithm. Use it in a query like this:
+
+    select *, rank_bm25(matchinfo(docs, "pcnalx")) as score
+    from docs where docs match "dog"
+    order by score desc
+
+You *must* use the `"pcnalx"` matchinfo format string here, or you will get incorrect results.
 
 ## decode_matchinfo()
 

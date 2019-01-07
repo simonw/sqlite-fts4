@@ -10,6 +10,7 @@ def register_functions(conn):
     conn.create_function("rank_score", 1, rank_score)
     conn.create_function("decode_matchinfo", 1, decode_matchinfo_str)
     conn.create_function("annotate_matchinfo", 2, annotate_matchinfo)
+    conn.create_function("rank_bm25", 1, rank_bm25)
 
 
 def wrap_sqlite_function_in_error_logger(fn):
@@ -193,6 +194,7 @@ def _annotate_matchinfo(buf, format_string):
     return results
 
 
+@wrap_sqlite_function_in_error_logger
 def rank_score(raw_matchinfo):
     # Score using matchinfo called w/default args 'pcx' - based on example rank
     # function http://sqlite.org/fts3.html#appendix_a
@@ -208,4 +210,57 @@ def rank_score(raw_matchinfo):
         hits_this_column_all_rows = details["hits_this_column_all_rows"]
         if hits_this_column_this_row > 0:
             score += float(hits_this_column_this_row) / hits_this_column_all_rows
+    return -score
+
+
+@wrap_sqlite_function_in_error_logger
+def rank_bm25(raw_match_info):
+    "Must be called with output of matchinfo 'pcnalx'"
+    match_info = _annotate_matchinfo(raw_match_info, "pcnalx")
+    # How much should multiple matches in the same document increase the score?
+    k = 1.2
+    # How much should document length affect the score? (shorter docs = higher score)
+    b = 0.75
+    score = 0.0
+
+    phrase_count = match_info["p"]["value"]
+    column_count = match_info["c"]["value"]
+    total_row_count = match_info["n"]["value"]
+
+    for phrase_index in range(phrase_count):
+        for column_index in range(column_count):
+            average_num_tokens = match_info["a"]["value"][column_index][
+                "average_num_tokens"
+            ]
+            num_tokens = match_info["l"]["value"][column_index]["num_tokens"]
+            if average_num_tokens == 0:
+                d = 0
+            else:
+                d = 1 - b + (b * (float(num_tokens) / float(average_num_tokens)))
+
+            phrase_column_x = [
+                v
+                for v in match_info["x"]["value"]
+                if v["column_index"] == column_index
+                and v["phrase_index"] == phrase_index
+            ][0]
+            term_frequency = float(phrase_column_x["hits_this_column_this_row"])
+            docs_with_hits = float(phrase_column_x["docs_with_hits"])
+
+            # idf = inverse document frequency: is this term rare or common
+            # across our entire corpus?
+            idf = max(
+                math.log(
+                    (total_row_count - docs_with_hits + 0.5) / (docs_with_hits + 0.5)
+                ),
+                0,
+            )
+            denom = term_frequency + (k * d)
+            if denom == 0:
+                rhs = 0
+            else:
+                rhs = (term_frequency * (k + 1)) / denom
+
+            score += idf * rhs
+
     return -score
