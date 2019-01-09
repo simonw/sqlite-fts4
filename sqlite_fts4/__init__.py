@@ -47,6 +47,8 @@ def annotate_matchinfo(buf, format_string):
 def _annotate_matchinfo(buf, format_string):
     # See https://www.sqlite.org/fts3.html#matchinfo for detailed specification
     matchinfo = list(decode_matchinfo(buf))
+    if not matchinfo:
+        return {}
     matchinfo_index = 0
     p_num_phrases = None
     c_num_columns = None
@@ -202,6 +204,8 @@ def rank_score(raw_matchinfo):
     # column value in the FTS table. The relevancy of a column value is the
     # sum of the following for each reportable phrase in the FTS query:
     #   (<hit count > / <global hit count>)
+    if not raw_matchinfo:
+        return None
     matchinfo = _annotate_matchinfo(raw_matchinfo, "pcx")
     score = 0.0
     x_phrase_column_details = matchinfo["x"]["value"]
@@ -216,6 +220,8 @@ def rank_score(raw_matchinfo):
 @wrap_sqlite_function_in_error_logger
 def rank_bm25(raw_match_info):
     "Must be called with output of matchinfo 'pcnalx'"
+    if not raw_match_info:
+        return None
     match_info = _annotate_matchinfo(raw_match_info, "pcnalx")
     # How much should multiple matches in the same document increase the score?
     k = 1.2

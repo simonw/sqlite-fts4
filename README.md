@@ -53,7 +53,7 @@ An implementation of the [Okapi BM25](https://en.wikipedia.org/wiki/Okapi_BM25) 
     from docs where docs match "dog"
     order by score desc
 
-You *must* use the `"pcnalx"` matchinfo format string here, or you will get incorrect results.
+You *must* use the `"pcnalx"` matchinfo format string here, or you will get incorrect results. If you see any `math domain` errors in your logs it may be because you did not use exactly the right format string here.
 
 ## decode_matchinfo()
 

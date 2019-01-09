@@ -81,6 +81,15 @@ def test_rank_bm25(conn):
     assert pytest.approx(-0.438011) == results[1][2]
 
 
+def test_rank_bm25_no_match(conn):
+    results = conn.execute(
+        """
+        select c0, c1, rank_bm25(matchinfo(search, 'pcnalx')) as bm25
+        from search limit 1
+    """).fetchall()
+    assert None == results[0][2]
+
+
 def test_annotate_matchinfo(conn):
     r = conn.execute(
         """
@@ -145,6 +154,15 @@ def test_annotate_matchinfo(conn):
         },
     }
     assert expected == json.loads(r)
+
+
+def test_annotate_matchinfo_empty(conn):
+    r = conn.execute(
+        """
+        select annotate_matchinfo(matchinfo(search, 'pcxnals'), 'pcxnals')
+        from search limit 1
+    """).fetchone()[0]
+    assert {} == json.loads(r)
 
 
 @pytest.mark.skipif(
