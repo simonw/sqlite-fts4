@@ -1,7 +1,7 @@
 from setuptools import setup
 import os
 
-VERSION = "0.5.2"
+VERSION = "1.0"
 
 
 def get_long_description():
@@ -19,9 +19,14 @@ setup(
     long_description_content_type="text/markdown",
     author="Simon Willison",
     url="https://github.com/simonw/sqlite-fts4",
+    project_urls={
+        "Issues": "https://github.com/simonw/sqlite-fts4/issues",
+        "CI": "https://github.com/simonw/sqlite-fts4/actions",
+        "Changelog": "https://github.com/simonw/sqlite-fts4/releases",
+    },
     license="Apache License, Version 2.0",
     version=VERSION,
     packages=["sqlite_fts4"],
-    setup_requires=["pytest-runner"],
     extras_require={"test": ["pytest"]},
+    tests_require=["sqlite-fts4[test]"],
 )
