@@ -57,7 +57,7 @@ jobs:
         twine upload dist/*
     - name: Publish demo
       env:
-        GITHUB_TAG: ${{ env.GITHUB_TAG }}
+        GITHUB_SHA: ${{ env.GITHUB_SHA }}
         NOW_TOKEN: ${{ secrets.NOW_TOKEN }}
       run: |-
         curl --silent -o 24ways-fts4.db https://24ways-fts4-db.now.sh/
@@ -65,7 +65,7 @@ jobs:
         datasette publish vercel 24ways-fts4.db \
           --token $NOW_TOKEN \
           --project datasette-sqlite-fts4 \
-          --install https://github.com/simonw/sqlite-fts4/archive/$GITHUB_TAG.zip \
+          --install https://github.com/simonw/sqlite-fts4/archive/$GITHUB_SHA.zip \
           --install datasette-sqlite-fts4 \
           --install datasette-json-html \
           --source_url=https://github.com/simonw/sqlite-fts4
