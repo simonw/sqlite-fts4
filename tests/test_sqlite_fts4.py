@@ -86,7 +86,8 @@ def test_rank_bm25_no_match(conn):
         """
         select c0, c1, rank_bm25(matchinfo(search, 'pcnalx')) as bm25
         from search limit 1
-    """).fetchall()
+    """
+    ).fetchall()
     assert None == results[0][2]
 
 
@@ -161,7 +162,8 @@ def test_annotate_matchinfo_empty(conn):
         """
         select annotate_matchinfo(matchinfo(search, 'pcxnals'), 'pcxnals')
         from search limit 1
-    """).fetchone()[0]
+    """
+    ).fetchone()[0]
     assert {} == json.loads(r)
 
 
