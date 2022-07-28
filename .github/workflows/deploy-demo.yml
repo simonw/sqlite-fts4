@@ -24,7 +24,7 @@ jobs:
         GITHUB_SHA: ${{ env.GITHUB_SHA }}
         NOW_TOKEN: ${{ secrets.NOW_TOKEN }}
       run: |-
-        curl --fail --silent -o 24ways-fts4.db https://24ways-fts4-db.now.sh/
+        curl --fail --silent -o 24ways-fts4.db https://static.simonwillison.net/static/2022/24ways-fts4.db
         pip install datasette datasette-publish-vercel
         datasette publish vercel 24ways-fts4.db \
           --token $NOW_TOKEN \
