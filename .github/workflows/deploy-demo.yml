@@ -1,0 +1,36 @@
+name: Deploy demo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+    - uses: actions/cache@v2
+      name: Configure pip caching
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-publish-pip-${{ hashFiles('**/setup.py') }}
+        restore-keys: |
+          ${{ runner.os }}-publish-pip-
+    - name: Publish demo
+      env:
+        GITHUB_SHA: ${{ env.GITHUB_SHA }}
+        NOW_TOKEN: ${{ secrets.NOW_TOKEN }}
+      run: |-
+        curl --fail --silent -o 24ways-fts4.db https://24ways-fts4-db.now.sh/
+        pip install datasette datasette-publish-vercel
+        datasette publish vercel 24ways-fts4.db \
+          --token $NOW_TOKEN \
+          --project datasette-sqlite-fts4 \
+          --install https://github.com/simonw/sqlite-fts4/archive/$GITHUB_SHA.zip \
+          --install datasette-sqlite-fts4 \
+          --install datasette-json-html \
+          --source_url=https://github.com/simonw/sqlite-fts4
