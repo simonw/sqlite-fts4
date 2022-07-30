@@ -2,6 +2,7 @@ import sqlite3
 from sqlite_fts4 import register_functions, decode_matchinfo
 import pytest
 import json
+import sys
 
 
 sqlite_version = tuple(
@@ -58,7 +59,9 @@ def test_decode_matchinfo(conn, search, expected):
     "buf,expected",
     [
         (
-            b"\x01\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00",
+            b"\x01\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00"
+            if sys.byteorder == "little"
+            else b"\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x02",
             (1, 2, 2, 2),
         )
     ],

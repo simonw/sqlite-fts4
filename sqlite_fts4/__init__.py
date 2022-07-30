@@ -32,7 +32,7 @@ def decode_matchinfo_str(buf):
 
 def decode_matchinfo(buf):
     # buf is a bytestring of unsigned integers, each 4 bytes long
-    return struct.unpack("<" + ("I" * (len(buf) // 4)), buf)
+    return struct.unpack("@" + ("I" * (len(buf) // 4)), buf)
 
 
 def _error(m):
